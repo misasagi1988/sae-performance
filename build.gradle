@@ -1,0 +1,69 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.12.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+group = 'com.hansight.sae'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+
+repositories {
+    maven {
+        url "http://hub.hansight.net/repository/hansight-public/"
+    }
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'com.hansight:starter-dependencies:5.1-SNAPSHOT'
+    }
+}
+
+configurations {
+    compile.exclude module: 'spring-boot-starter-logging'
+}
+
+dependencies {
+    compile files('lib/esper-6.1.0.jar')
+    compile files('lib/antlr-4.5.3-complete.jar')
+    compile files('lib/antlr-runtime-4.5.3.jar')
+    compile files('lib/cglib-nodep-3.2.4.jar')
+
+    compile('org.springframework.boot:spring-boot-starter-web')
+
+    compile('org.springframework.boot:spring-boot-starter-log4j2')
+
+    compile('com.alibaba:fastjson')
+
+    compile('org.apache.commons:commons-lang3')
+
+    // 支持log4j2.yml必备
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml'
+
+    compile group: 'log4j', name: 'log4j'
+
+    compile('io.dropwizard.metrics:metrics-core')
+    compile('io.dropwizard.metrics:metrics-jvm')
+
+    compile('org.apache.kafka:kafka-clients') {
+        exclude module: 'slf4j-log4j12'
+        exclude module: 'log4j'
+        exclude group: 'com.sun.jmx', module: 'jmxri'
+        exclude group: 'javax.jms', module: 'jms'
+        exclude group: 'com.sun.jdmk', module: 'jmxtools'
+    }
+
+}

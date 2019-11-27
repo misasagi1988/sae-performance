@@ -1,0 +1,33 @@
+
+server:
+  port: 8801
+
+
+logging:
+  config: classpath:log4j2.yml
+
+
+kafka:
+  consumer:
+    bootstrap.servers: 172.16.100.193:9092
+    topic: hes-sae-group-0
+    group.id: hansight-sae-performance
+    enable.auto.commit: true
+    auto.commit.interval.ms: 30000
+    max.poll.records: 10000
+    fetch.min.bytes: 1
+    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+
+engine:
+  multi_thread: true
+  metric_on: true
+  metric_period: 10
+
+
+performance:
+  #epl: SELECT * FROM GlobalEvent(event_name='网络连接') AS A
+  epl: SELECT * FROM GlobalEvent(event_name='网络连接3').win:ext_timed(occur_time,1 min) AS A GROUP BY A.`src_address` HAVING count(*) >= 100
+  #epl: SELECT * FROM PATTERN[EVERY A=GlobalEvent(event_name='网络连接1')->(B=GlobalEvent(event_name='网络连接3' AND (A.`dst_address`=B.`src_address`)) WHERE timer:within(20 min)) WHILE (A.occur_time <=B.occur_time AND B.occur_time - A.occur_time <=600000) ]
+  count: 100
