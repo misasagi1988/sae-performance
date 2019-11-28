@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EventSource implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(EventSource.class);
@@ -36,17 +38,27 @@ public class EventSource implements Runnable {
     @Override
     public void run() {
         int cnt = 0;
+        AtomicInteger integer = new AtomicInteger(0);
+        Random random = new Random();
         while (true) {
             try {
                 event.put("event_name", "网络连接"+cnt);
                 event.put("occur_time", System.currentTimeMillis());
+                event.put("src_port", random.nextInt(65535)+1);
                 messageCallback.onMessage(event);
                 if(MetricsManager.isMetric()) {
-                    MetricsCenter.me().getMeter(MetricsCenter.KAFKA_EVENT).mark();
+                    MetricsCenter.me().getMeter(MetricsCenter.SOURCE_EVENT).mark();
                 }
                 cnt++;
                 if(cnt>10) {
                     cnt = 0;
+                }
+                if(integer.incrementAndGet()>=500){
+                    integer.set(0);
+                    try {
+                        Thread.sleep(1);
+                    } catch (Exception e) {
+                    }
                 }
 
             } catch (Exception e) {

@@ -67,7 +67,8 @@ public class MetricsCenter {
         return metricRegistry.counter(name);
     }
 
-    public static final String KAFKA_EVENT = "event";
+    public static final String SOURCE_EVENT = "source_event";
+    public static final String ENGINE_EVENT = "engine_event";
     public static final String ALARM_TRIGGERRED = "alarm";
 
 }

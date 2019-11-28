@@ -21,13 +21,18 @@ kafka:
 
 
 engine:
-  multi_thread: true
+  multi_thread: false
   metric_on: true
   metric_period: 10
 
 
 performance:
-  #epl: SELECT * FROM GlobalEvent(event_name='网络连接') AS A
-  epl: SELECT * FROM GlobalEvent(event_name='网络连接3').win:ext_timed(occur_time,1 min) AS A GROUP BY A.`src_address` HAVING count(*) >= 100
-  #epl: SELECT * FROM PATTERN[EVERY A=GlobalEvent(event_name='网络连接1')->(B=GlobalEvent(event_name='网络连接3' AND (A.`dst_address`=B.`src_address`)) WHERE timer:within(20 min)) WHILE (A.occur_time <=B.occur_time AND B.occur_time - A.occur_time <=600000) ]
-  count: 100
+  count: 1
+  epl:
+    - SELECT * FROM GlobalEvent(event_name='网络连接1').win:ext_timed(occur_time,1 min) AS A GROUP BY A.`src_address` HAVING count(*) >= 10
+    #- SELECT * FROM GlobalEvent(event_name='网络连接2' and src_port between 2000 and 4000).win:ext_timed(occur_time,20 min) AS A GROUP BY A.`src_address` HAVING count(*) >= 20
+    #- SELECT * FROM GlobalEvent(event_name='网络连接3' and src_port between 300 and 3000).win:ext_timed(occur_time,30 min) AS A GROUP BY A.`src_address` HAVING count(*) >= 30
+    #- SELECT * FROM GlobalEvent(event_name='网络连接4' and src_port between 3000 and 6000).win:ext_timed(occur_time,40 min) AS A GROUP BY A.`src_address` HAVING count(*) >= 40
+    #- SELECT * FROM GlobalEvent(event_name='网络连接5' and src_port between 1000 and 5000).win:ext_timed(occur_time,50 min) AS A GROUP BY A.`src_address` HAVING count(*) >= 50
+    #- SELECT * FROM GlobalEvent(event_name='网络连接6' and src_port between 2000 and 6000).win:ext_timed(occur_time,60 min) AS A GROUP BY A.`src_address` HAVING count(*) >= 60
+

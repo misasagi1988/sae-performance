@@ -2,16 +2,19 @@ package com.hansight.sae.performance.input;
 
 import com.alibaba.fastjson.JSONArray;
 import com.hansight.sae.performance.core.EngineCore;
+import com.hansight.sae.performance.metric.MetricsCenter;
+import com.hansight.sae.performance.metric.MetricsManager;
 import com.hansight.sae.performance.util.JsonUtil;
+import com.hansight.sae.performance.util.ThreadPoolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MessageCallback {
     private static final Logger logger = LoggerFactory.getLogger(MessageCallback.class);
@@ -31,6 +34,9 @@ public class MessageCallback {
                         }
                         // TODO 对message进行wrap
                         EngineCore.sendEvent(message);
+                        if(MetricsManager.isMetric()) {
+                            MetricsCenter.me().getMeter(MetricsCenter.ENGINE_EVENT).mark();
+                        }
                         if(logger.isDebugEnabled()){
                             logger.debug("send data to engine:{}", message);
                         }
@@ -45,6 +51,16 @@ public class MessageCallback {
         t.setName(MessageCallback.class.getSimpleName());
         t.setDaemon(true);
         t.start();
+        ThreadPoolUtil.createSchedulePool(1, "queue-info").scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    logger.info("current queue size: {}", queue.size());
+                } catch (Exception e) {
+
+                }
+            }
+        }, 1, 1, TimeUnit.MINUTES);
     }
 
     public void onMessage(Map message) {

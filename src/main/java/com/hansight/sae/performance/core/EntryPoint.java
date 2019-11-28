@@ -37,9 +37,11 @@ public class EntryPoint {
         logger.info("engine configs: {}", engineConfigProps);
         metricsManager.init();
         EngineCore.init(metricsManager.isMultiThread());
-        logger.info("performance test info: {}", performanceTestProps);
-        for(int i=0; i<performanceTestProps.getCount(); i++) {
-            EngineCore.addRule(performanceTestProps.getEpl(), eplName+i, subscriber);
+        logger.info("performance test info: {}, epl count: {}", performanceTestProps, performanceTestProps.getEpl().size());
+        for(int i=0;i<performanceTestProps.getCount();i++) {
+            for(String s: performanceTestProps.getEpl()) {
+                EngineCore.addRule(s, eplName + s + i, subscriber);
+            }
         }
         EventSource eventSource = new EventSource(messageCallback);
         eventSource.accept();

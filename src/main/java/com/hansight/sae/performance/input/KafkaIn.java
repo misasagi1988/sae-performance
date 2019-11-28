@@ -151,10 +151,10 @@ public class KafkaIn implements Runnable{
                         if(log.isDebugEnabled()) {
                             log.debug("get message, topic: {}, partition: {}, offset: {}, message: {}", record.topic(), record.partition(), record.offset(), record.value());
                         }
-                        if(MetricsManager.isMetric()) {
-                            MetricsCenter.me().getMeter(MetricsCenter.KAFKA_EVENT).mark();
-                        }
                         process(record.value());
+                        if(MetricsManager.isMetric()) {
+                            MetricsCenter.me().getMeter(MetricsCenter.SOURCE_EVENT).mark();
+                        }
                         lastReadEndOffset[record.partition()] = record.offset();
                     } else {
                         log.debug("kafka attempts to consume data repeatedly：offset={}, data={}", record.offset(), record.value());
@@ -172,7 +172,7 @@ public class KafkaIn implements Runnable{
             }
         }
         log.info("Thread name: {}, topic: {} destroyed", Thread.currentThread().getName(), topic);
-        MetricsCenter.me().removeMeter(MetricsCenter.KAFKA_EVENT);
+        MetricsCenter.me().removeMeter(MetricsCenter.SOURCE_EVENT);
         removeInput(name);
         shutdown();
     }
